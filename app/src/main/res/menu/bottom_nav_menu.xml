@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_photo"
+        android:icon="@drawable/ic_baseline_camera_24"
+        android:title="Фото" />
+
+    <item
+        android:id="@+id/navigation_broadcast"
+        android:icon="@drawable/ic_baseline_linked_camera_24"
+        android:title="Трансляция" />
+
+
+</menu>
