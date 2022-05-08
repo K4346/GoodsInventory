@@ -3,7 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_graph"
-    app:startDestination="@id/navigation_appointments">
+    app:startDestination="@id/navigation_photo">
 
 
+    <fragment
+        android:id="@+id/navigation_photo"
+        android:name="com.executor.goodsinventory.ui.PhotoFragment"
+        android:label="PhotoFragment" />
+    <fragment
+        android:id="@+id/navigation_broadcast"
+        android:name="com.executor.goodsinventory.ui.BroadcastFragment"
+        android:label="BroadcastFragment" />
 </navigation>

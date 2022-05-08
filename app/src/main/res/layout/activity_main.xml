@@ -36,6 +36,8 @@
         app:layout_constraintBottom_toTopOf="@id/nav_view"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:navGraph="@navigation/main_graph" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/main_graph"
+        tools:layout="@layout/fragment_broadcast" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
