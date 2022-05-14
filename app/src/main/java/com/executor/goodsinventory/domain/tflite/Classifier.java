@@ -26,16 +26,6 @@ import java.util.List;
 public interface Classifier {
     List<Recognition> recognizeImage(Bitmap bitmap);
 
-    void enableStatLogging(final boolean debug);
-
-    String getStatString();
-
-    void close();
-
-    void setNumThreads(int num_threads);
-
-    void setUseNNAPI(boolean isChecked);
-
     abstract float getObjThresh();
 
     /**
@@ -81,10 +71,6 @@ public interface Classifier {
             this.detectedClass = detectedClass;
         }
 
-        public String getId() {
-            return id;
-        }
-
         public String getTitle() {
             return title;
         }
@@ -97,16 +83,8 @@ public interface Classifier {
             return new RectF(location);
         }
 
-        public void setLocation(RectF location) {
-            this.location = location;
-        }
-
         public int getDetectedClass() {
             return detectedClass;
-        }
-
-        public void setDetectedClass(int detectedClass) {
-            this.detectedClass = detectedClass;
         }
 
         @Override

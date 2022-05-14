@@ -20,15 +20,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/avatars" />
 
-        <Button
-            android:id="@+id/detect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Анализ"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/galleryButton" />
 
         <Button
             android:id="@+id/galleryButton"
@@ -49,14 +40,27 @@
             app:layout_constraintStart_toEndOf="@+id/galleryButton"
             app:layout_constraintTop_toTopOf="@+id/galleryButton" />
 
+        <Button
+            android:id="@+id/detect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Анализ"
+            app:layout_constraintEnd_toStartOf="@id/chronometer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/galleryButton" />
 
-        <!--    <com.executor.goodsinventory.domain.customview.OverlayView-->
-        <!--        android:id="@+id/tracking_overlay"-->
-        <!--        android:layout_width="wrap_content"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        app:layout_constraintEnd_toEndOf="parent"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        app:layout_constraintTop_toTopOf="parent"/>-->
+        <TextView
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:text="0:0"
+            app:layout_constraintStart_toEndOf="@+id/detect"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/detect"
+            app:layout_constraintBottom_toBottomOf="@+id/detect"/>
 
         <TextView
             android:id="@+id/labels"
@@ -66,6 +70,6 @@
             android:layout_marginTop="20dp"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/detect" />
+            app:layout_constraintTop_toBottomOf="@id/chronometer" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

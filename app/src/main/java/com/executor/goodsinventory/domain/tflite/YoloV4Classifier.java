@@ -16,12 +16,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Build;
-import android.util.Log;
 
 import com.executor.goodsinventory.InventoryModel;
-import com.executor.goodsinventory.MainActivity;
-import com.executor.goodsinventory.domain.env.Logger;
-import com.executor.goodsinventory.domain.env.Utils;
+import com.executor.goodsinventory.UtilsObject;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;
@@ -73,7 +70,6 @@ public class YoloV4Classifier implements Classifier {
         BufferedReader br = new BufferedReader(new InputStreamReader(labelsInput));
         String line;
         while ((line = br.readLine()) != null) {
-            LOGGER.w(line);
             d.labels.add(line);
         }
         InventoryModel.INSTANCE.setClasses(d.labels.size());
@@ -101,12 +97,11 @@ public class YoloV4Classifier implements Classifier {
                 GpuDelegate gpuDelegate = new GpuDelegate();
                 options.addDelegate(gpuDelegate);
             }
-            d.tfLite = new Interpreter(Utils.loadModelFile(assetManager, modelFilename), options);
+            d.tfLite = new Interpreter(UtilsObject.INSTANCE.loadModelFile(assetManager, modelFilename), options);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        d.isModelQuantized = isQuantized;
         // Pre-allocate buffers.
         int numBytesPerChannel;
         if (isQuantized) {
@@ -122,50 +117,12 @@ public class YoloV4Classifier implements Classifier {
     }
 
     @Override
-    public void enableStatLogging(final boolean logStats) {
-    }
-
-    @Override
-    public String getStatString() {
-        return "";
-    }
-
-    @Override
-    public void close() {
-    }
-
-    public void setNumThreads(int num_threads) {
-        if (tfLite != null) tfLite.setNumThreads(num_threads);
-    }
-
-    @Override
-    public void setUseNNAPI(boolean isChecked) {
-        if (tfLite != null) tfLite.setUseNNAPI(isChecked);
-    }
-
-    @Override
     public float getObjThresh() {
         return InventoryModel.MINIMUM_CONFIDENCE_TF_OD_API;
     }
 
-    private static final Logger LOGGER = new Logger();
-
-    // Float model
-    private static final float IMAGE_MEAN = 0;
-
-    private static final float IMAGE_STD = 255.0f;
-
     //config yolov4
     private static final int INPUT_SIZE = 416;
-    private static final int[] OUTPUT_WIDTH = new int[]{52, 26, 13};
-
-    private static final int[][] MASKS = new int[][]{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
-    private static final int[] ANCHORS = new int[]{
-            12, 16, 19, 36, 40, 28, 36, 75, 76, 55, 72, 146, 142, 110, 192, 243, 459, 401
-    };
-    private static final float[] XYSCALE = new float[]{1.2f, 1.1f, 1.05f};
-
-    private static final int NUM_BOXES_PER_BLOCK = 3;
 
     // Number of threads in the java app
     private static final int NUM_THREADS = 4;
@@ -173,17 +130,11 @@ public class YoloV4Classifier implements Classifier {
     private static boolean isGPU = true;
 
     // tiny or not
-    private static boolean isTiny = false;
+    private static boolean isTiny = true;
 
     // config yolov4 tiny
     private static final int[] OUTPUT_WIDTH_TINY = new int[]{2535, 2535};
     private static final int[] OUTPUT_WIDTH_FULL = new int[]{10647, 10647};
-    private static final int[][] MASKS_TINY = new int[][]{{3, 4, 5}, {1, 2, 3}};
-    private static final int[] ANCHORS_TINY = new int[]{
-            23, 27, 37, 58, 81, 82, 81, 82, 135, 169, 344, 319};
-    private static final float[] XYSCALE_TINY = new float[]{1.05f, 1.05f};
-
-    private boolean isModelQuantized;
 
     // Config values.
 
@@ -297,76 +248,6 @@ public class YoloV4Classifier implements Classifier {
         return byteBuffer;
     }
 
-//    private ArrayList<Recognition> getDetections(ByteBuffer byteBuffer, Bitmap bitmap) {
-//        ArrayList<Recognition> detections = new ArrayList<Recognition>();
-//        Map<Integer, Object> outputMap = new HashMap<>();
-//        for (int i = 0; i < OUTPUT_WIDTH.length; i++) {
-//            float[][][][][] out = new float[1][OUTPUT_WIDTH[i]][OUTPUT_WIDTH[i]][3][5 + labels.size()];
-//            outputMap.put(i, out);
-//        }
-//
-//        Log.d("YoloV4Classifier", "mObjThresh: " + getObjThresh());
-//
-//        Object[] inputArray = {byteBuffer};
-//        tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
-//
-//        for (int i = 0; i < OUTPUT_WIDTH.length; i++) {
-//            int gridWidth = OUTPUT_WIDTH[i];
-//            float[][][][][] out = (float[][][][][]) outputMap.get(i);
-//
-//            Log.d("YoloV4Classifier", "out[" + i + "] detect start");
-//            for (int y = 0; y < gridWidth; ++y) {
-//                for (int x = 0; x < gridWidth; ++x) {
-//                    for (int b = 0; b < NUM_BOXES_PER_BLOCK; ++b) {
-//                        final int offset =
-//                                (gridWidth * (NUM_BOXES_PER_BLOCK * (labels.size() + 5))) * y
-//                                        + (NUM_BOXES_PER_BLOCK * (labels.size() + 5)) * x
-//                                        + (labels.size() + 5) * b;
-//
-//                        final float confidence = expit(out[0][y][x][b][4]);
-//                        int detectedClass = -1;
-//                        float maxClass = 0;
-//
-//                        final float[] classes = new float[labels.size()];
-//                        for (int c = 0; c < labels.size(); ++c) {
-//                            classes[c] = out[0][y][x][b][5 + c];
-//                        }
-//
-//                        for (int c = 0; c < labels.size(); ++c) {
-//                            if (classes[c] > maxClass) {
-//                                detectedClass = c;
-//                                maxClass = classes[c];
-//                            }
-//                        }
-//
-//                        final float confidenceInClass = maxClass * confidence;
-//                        if (confidenceInClass > getObjThresh()) {
-////                            final float xPos = (x + (expit(out[0][y][x][b][0]) * XYSCALE[i]) - (0.5f * (XYSCALE[i] - 1))) * (INPUT_SIZE / gridWidth);
-////                            final float yPos = (y + (expit(out[0][y][x][b][1]) * XYSCALE[i]) - (0.5f * (XYSCALE[i] - 1))) * (INPUT_SIZE / gridWidth);
-//
-//                            final float xPos = (x + expit(out[0][y][x][b][0])) * (1.0f * INPUT_SIZE / gridWidth);
-//                            final float yPos = (y + expit(out[0][y][x][b][1])) * (1.0f * INPUT_SIZE / gridWidth);
-//
-//                            final float w = (float) (Math.exp(out[0][y][x][b][2]) * ANCHORS[2 * MASKS[i][b]]);
-//                            final float h = (float) (Math.exp(out[0][y][x][b][3]) * ANCHORS[2 * MASKS[i][b] + 1]);
-//
-//                            final RectF rect =
-//                                    new RectF(
-//                                            Math.max(0, xPos - w / 2),
-//                                            Math.max(0, yPos - h / 2),
-//                                            Math.min(bitmap.getWidth() - 1, xPos + w / 2),
-//                                            Math.min(bitmap.getHeight() - 1, yPos + h / 2));
-//                            detections.add(new Recognition("" + offset, labels.get(detectedClass),
-//                                    confidenceInClass, rect, detectedClass));
-//                        }
-//                    }
-//                }
-//            }
-//            Log.d("YoloV4Classifier", "out[" + i + "] detect end");
-//        }
-//        return detections;
-//    }
-
     /**
      * For yolov4-tiny, the situation would be a little different from the yolov4, it only has two
      * output. Both has three dimenstion. The first one is a tensor with dimension [1, 2535,4], containing all the bounding boxes.
@@ -463,73 +344,6 @@ public class YoloV4Classifier implements Classifier {
     public ArrayList<Recognition> recognizeImage(Bitmap bitmap) {
         ByteBuffer byteBuffer = convertBitmapToByteBuffer(bitmap);
 
-//        Map<Integer, Object> outputMap = new HashMap<>();
-//        for (int i = 0; i < OUTPUT_WIDTH.length; i++) {
-//            float[][][][][] out = new float[1][OUTPUT_WIDTH[i]][OUTPUT_WIDTH[i]][3][5 + labels.size()];
-//            outputMap.put(i, out);
-//        }
-//
-//        Log.d("YoloV4Classifier", "mObjThresh: " + getObjThresh());
-//
-//        Object[] inputArray = {byteBuffer};
-//        tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
-//
-//        ArrayList<Recognition> detections = new ArrayList<Recognition>();
-//
-//        for (int i = 0; i < OUTPUT_WIDTH.length; i++) {
-//            int gridWidth = OUTPUT_WIDTH[i];
-//            float[][][][][] out = (float[][][][][]) outputMap.get(i);
-//
-//            Log.d("YoloV4Classifier", "out[" + i + "] detect start");
-//            for (int y = 0; y < gridWidth; ++y) {
-//                for (int x = 0; x < gridWidth; ++x) {
-//                    for (int b = 0; b < NUM_BOXES_PER_BLOCK; ++b) {
-//                        final int offset =
-//                                (gridWidth * (NUM_BOXES_PER_BLOCK * (labels.size() + 5))) * y
-//                                        + (NUM_BOXES_PER_BLOCK * (labels.size() + 5)) * x
-//                                        + (labels.size() + 5) * b;
-//
-//                        final float confidence = expit(out[0][y][x][b][4]);
-//                        int detectedClass = -1;
-//                        float maxClass = 0;
-//
-//                        final float[] classes = new float[labels.size()];
-//                        for (int c = 0; c < labels.size(); ++c) {
-//                            classes[c] = out[0][y][x][b][5 + c];
-//                        }
-//
-//                        for (int c = 0; c < labels.size(); ++c) {
-//                            if (classes[c] > maxClass) {
-//                                detectedClass = c;
-//                                maxClass = classes[c];
-//                            }
-//                        }
-//
-//                        final float confidenceInClass = maxClass * confidence;
-//                        if (confidenceInClass > getObjThresh()) {
-////                            final float xPos = (x + (expit(out[0][y][x][b][0]) * XYSCALE[i]) - (0.5f * (XYSCALE[i] - 1))) * (INPUT_SIZE / gridWidth);
-////                            final float yPos = (y + (expit(out[0][y][x][b][1]) * XYSCALE[i]) - (0.5f * (XYSCALE[i] - 1))) * (INPUT_SIZE / gridWidth);
-//
-//                            final float xPos = (x + expit(out[0][y][x][b][0])) * (1.0f * INPUT_SIZE / gridWidth);
-//                            final float yPos = (y + expit(out[0][y][x][b][1])) * (1.0f * INPUT_SIZE / gridWidth);
-//
-//                            final float w = (float) (Math.exp(out[0][y][x][b][2]) * ANCHORS[2 * MASKS[i][b]]);
-//                            final float h = (float) (Math.exp(out[0][y][x][b][3]) * ANCHORS[2 * MASKS[i][b] + 1]);
-//
-//                            final RectF rect =
-//                                    new RectF(
-//                                            Math.max(0, xPos - w / 2),
-//                                            Math.max(0, yPos - h / 2),
-//                                            Math.min(bitmap.getWidth() - 1, xPos + w / 2),
-//                                            Math.min(bitmap.getHeight() - 1, yPos + h / 2));
-//                            detections.add(new Recognition("" + offset, labels.get(detectedClass),
-//                                    confidenceInClass, rect, detectedClass));
-//                        }
-//                    }
-//                }
-//            }
-//            Log.d("YoloV4Classifier", "out[" + i + "] detect end");
-//        }
         ArrayList<Recognition> detections;
         if (isTiny) {
             detections = getDetectionsForTiny(byteBuffer, bitmap);
@@ -540,55 +354,4 @@ public class YoloV4Classifier implements Classifier {
         return recognitions;
     }
 
-    public boolean checkInvalidateBox(float x, float y, float width, float height, float oriW, float oriH, int intputSize) {
-        // (1) (x, y, w, h) --> (xmin, ymin, xmax, ymax)
-        float halfHeight = height / 2.0f;
-        float halfWidth = width / 2.0f;
-
-        float[] pred_coor = new float[]{x - halfWidth, y - halfHeight, x + halfWidth, y + halfHeight};
-
-        // (2) (xmin, ymin, xmax, ymax) -> (xmin_org, ymin_org, xmax_org, ymax_org)
-        float resize_ratioW = 1.0f * intputSize / oriW;
-        float resize_ratioH = 1.0f * intputSize / oriH;
-
-        float resize_ratio = resize_ratioW > resize_ratioH ? resize_ratioH : resize_ratioW; //min
-
-        float dw = (intputSize - resize_ratio * oriW) / 2;
-        float dh = (intputSize - resize_ratio * oriH) / 2;
-
-        pred_coor[0] = 1.0f * (pred_coor[0] - dw) / resize_ratio;
-        pred_coor[2] = 1.0f * (pred_coor[2] - dw) / resize_ratio;
-
-        pred_coor[1] = 1.0f * (pred_coor[1] - dh) / resize_ratio;
-        pred_coor[3] = 1.0f * (pred_coor[3] - dh) / resize_ratio;
-
-        // (3) clip some boxes those are out of range
-        pred_coor[0] = pred_coor[0] > 0 ? pred_coor[0] : 0;
-        pred_coor[1] = pred_coor[1] > 0 ? pred_coor[1] : 0;
-
-        pred_coor[2] = pred_coor[2] < (oriW - 1) ? pred_coor[2] : (oriW - 1);
-        pred_coor[3] = pred_coor[3] < (oriH - 1) ? pred_coor[3] : (oriH - 1);
-
-        if ((pred_coor[0] > pred_coor[2]) || (pred_coor[1] > pred_coor[3])) {
-            pred_coor[0] = 0;
-            pred_coor[1] = 0;
-            pred_coor[2] = 0;
-            pred_coor[3] = 0;
-        }
-
-        // (4) discard some invalid boxes
-        float temp1 = pred_coor[2] - pred_coor[0];
-        float temp2 = pred_coor[3] - pred_coor[1];
-        float temp = temp1 * temp2;
-        if (temp < 0) {
-            Log.e("checkInvalidateBox", "temp < 0");
-            return false;
-        }
-        if (Math.sqrt(temp) > Float.MAX_VALUE) {
-            Log.e("checkInvalidateBox", "temp max");
-            return false;
-        }
-
-        return true;
-    }
 }

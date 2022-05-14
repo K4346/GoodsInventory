@@ -35,6 +35,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.executor.goodsinventory.MainActivity
+import com.executor.goodsinventory.domain.Timer
+import com.executor.goodsinventory.domain.env.BorderedText
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -75,10 +77,12 @@ class PhotoFragment : Fragment() {
                 InventoryModel.TF_OD_API_INPUT_SIZE,
                 InventoryModel.TF_OD_API_INPUT_SIZE
             )
+            Timer.startTimer(binding.chronometer)
             Thread {
                 val results: List<Recognition> =
                     detector!!.recognizeImage(cropBitmap)
                 handler.post {
+                    Timer.endTimer(binding.chronometer)
                     handleResult(cropBitmap, results)
                 }
             }.start()
@@ -98,16 +102,6 @@ class PhotoFragment : Fragment() {
         startActivityForResult(intent, requestCode)
     }
 
-    private fun dispatchTakesPictureIntent() {
-        val requestImageCapture = InventoryModel.CAMERA_REQUEST
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        try {
-            startActivityForResult(takePictureIntent, requestImageCapture)
-        } catch (e: ActivityNotFoundException) {
-        }
-
-
-    }
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             // Ensure that there's a camera activity to handle the intent
@@ -177,13 +171,6 @@ class PhotoFragment : Fragment() {
         )
         cropToFrameTransform = Matrix()
         frameToCropTransform!!.invert(cropToFrameTransform)
-//        tracker = MultiBoxTracker(requireContext())
-//        binding.trackingOverlay.addCallback { canvas -> tracker.draw(canvas) }
-//        tracker.setFrameConfiguration(
-//            InventoryModel.TF_OD_API_INPUT_SIZE,
-//            InventoryModel.TF_OD_API_INPUT_SIZE,
-//            sensorOrientation
-//        )
         try {
             detector = YoloV4Classifier.create(
                 requireActivity().assets,
@@ -193,7 +180,6 @@ class PhotoFragment : Fragment() {
             )
         } catch (e: IOException) {
             e.printStackTrace()
-            InventoryModel.LOGGER.e(e, "Exception initializing classifier!")
             val toast = Toast.makeText(
                 requireContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT
             )
@@ -220,25 +206,17 @@ class PhotoFragment : Fragment() {
                 paint.color = colors[result.detectedClass]
                goods = viewModel.prepareGoods(colors, result, goods)
 
-//                if (!binding.labels.text.contains(result.title)){
-
-//                    val span = SpannableString(result.title+"\n")
-//                    span.setSpan(ForegroundColorSpan(colors[result.detectedClass]), 0, result.title.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                    binding.labels.text = span
-//                val borderedText = BorderedText( TypedValue.applyDimension(
-//                    TypedValue.COMPLEX_UNIT_DIP,
-//                    11f,
-//                    resources.displayMetrics
-//                ))
-//                borderedText.drawText(canvas, location.left,
-//                    location.top - 5,
-//                    "${result.title} ${DecimalFormat("##.##").format(result.confidence)}")
-                canvas.drawText(
-                    DecimalFormat("##.##").format(result.confidence),
+                val b = BorderedText(
+                    interiorColor = paint.color,
+                    exteriorColor = Color.BLACK,
+                    textSize = 14f
+                )
+                b.drawText(
+                    canvas,
                     location.left,
-                        location.top - 5,
-                        paint
-                    )
+                    location.top - 5, DecimalFormat("##.##").format(result.confidence)
+                )
+
                     canvas.drawRect(location, paint)
                 }
         }
