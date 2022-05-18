@@ -1,16 +1,20 @@
 package com.executor.goodsinventory.domain
 
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.view.isVisible
 import java.util.*
 
 object Timer {
     var start = 0L
-    fun startTimer(textView: TextView) {
+    fun startTimer(textView: TextView, progressBar: ProgressBar) {
+        progressBar.isVisible=true
         val date= Date()
         textView.text="0:0"
         start= date.time
     }
-    fun endTimer(textView: TextView){
+    fun endTimer(textView: TextView, progressBar: ProgressBar){
+        progressBar.isVisible=false
         val date= Date()
         textView.text="0:0"
         val ms = date.time - start

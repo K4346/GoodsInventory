@@ -18,9 +18,6 @@ import kotlin.collections.ArrayList
 
 class PhotoViewModel(application: Application) : AndroidViewModel(application) {
     private val disposable = CompositeDisposable()
-    fun detect() {
-
-    }
 
     override fun onCleared() {
         super.onCleared()

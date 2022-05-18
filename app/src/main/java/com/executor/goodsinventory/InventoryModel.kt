@@ -1,22 +1,27 @@
 package com.executor.goodsinventory
 
 object InventoryModel {
-    var classes:Int=0
+    var classes: Int = 0
     var labels = java.util.ArrayList<String>()
 
-
+    lateinit var models: ArrayList<String>
 
     const val CAMERA_REQUEST = 1888
     const val GALLERY_REQUEST = 100
 
-    const val MINIMUM_CONFIDENCE_TF_OD_API = 0.5f
+    @JvmField
+    var accuracy = 0.5f
 
-    const val TF_OD_API_INPUT_SIZE = 416
+    @JvmField
+    var TF_OD_API_INPUT_SIZE = 416
 
-    const val TF_OD_API_IS_QUANTIZED = false
+    @JvmField
+    var isTiny = false
 
-    const val TF_OD_API_MODEL_FILE = "custom_yolov4_tiny.tflite"
+    var is_quantized = false
 
-    const val TF_OD_API_LABELS_FILE = "file:///android_asset/predefined_classes.txt"
+    var TF_OD_API_MODEL_FILE = "custom_yolov4.tflite"
+
+    var TF_OD_API_LABELS_FILE = "file:///android_asset/predefined_classes.txt"
 
 }

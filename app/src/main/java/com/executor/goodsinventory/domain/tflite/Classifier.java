@@ -26,8 +26,6 @@ import java.util.List;
 public interface Classifier {
     List<Recognition> recognizeImage(Bitmap bitmap);
 
-    abstract float getObjThresh();
-
     /**
      * An immutable result returned by a Classifier describing what was recognized.
      */

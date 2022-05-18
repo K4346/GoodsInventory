@@ -12,6 +12,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        UtilsObject.initModels(application)
+
         val binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
@@ -21,12 +23,14 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
     }
+
     private fun deleteAllContent(file: File, vararg filename: String) {
-        if (file.isDirectory()) for (child in file.listFiles()) deleteAllContent(child)
+        if (file.isDirectory) for (child in file.listFiles()) deleteAllContent(child)
         for (fn in filename) if (file.name
                 .equals(filename)
         ) file.delete()
     }
+
     override fun onDestroy() {
         getExternalFilesDir(null)?.let { deleteAllContent(it) }
         super.onDestroy()

@@ -11,7 +11,7 @@
         android:name="com.executor.goodsinventory.ui.PhotoFragment"
         android:label="PhotoFragment" />
     <fragment
-        android:id="@+id/navigation_broadcast"
-        android:name="com.executor.goodsinventory.ui.BroadcastFragment"
-        android:label="BroadcastFragment" />
+        android:id="@+id/navigation_settings"
+        android:name="com.executor.goodsinventory.ui.SettingsFragment"
+        android:label="SettingsFragment" />
 </navigation>

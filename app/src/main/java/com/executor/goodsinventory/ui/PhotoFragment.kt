@@ -1,44 +1,36 @@
 package com.executor.goodsinventory.ui
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.*
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.text.Spannable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.executor.goodsinventory.InventoryModel
+import com.executor.goodsinventory.MainActivity
 import com.executor.goodsinventory.UtilsObject
 import com.executor.goodsinventory.databinding.FragmentPhotoBinding
+import com.executor.goodsinventory.domain.Timer
 import com.executor.goodsinventory.domain.entities.Goods
+import com.executor.goodsinventory.domain.env.BorderedText
 import com.executor.goodsinventory.domain.env.ImageUtils
 import com.executor.goodsinventory.domain.env.Utils
 import com.executor.goodsinventory.domain.tflite.Classifier
 import com.executor.goodsinventory.domain.tflite.Classifier.Recognition
 import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
+import com.squareup.picasso.Picasso
+import java.io.File
 import java.io.IOException
 import java.text.DecimalFormat
-import com.squareup.picasso.Picasso
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
-import org.antlr.runtime.tree.TreeParser.inContext
-
-import android.graphics.Bitmap
-import android.net.Uri
-import androidx.core.content.FileProvider
-import com.executor.goodsinventory.MainActivity
-import com.executor.goodsinventory.domain.Timer
-import com.executor.goodsinventory.domain.env.BorderedText
-import java.io.ByteArrayOutputStream
-import java.io.File
 
 
 class PhotoFragment : Fragment() {
@@ -61,28 +53,38 @@ class PhotoFragment : Fragment() {
 
         sourceBitmap = Utils.getBitmapFromAsset(requireContext(), "primer.jpg")
 
-        cropBitmap = Utils.BITMAP_RESIZER(sourceBitmap, InventoryModel.TF_OD_API_INPUT_SIZE,InventoryModel.TF_OD_API_INPUT_SIZE)
-
-        binding.imageView.setImageBitmap(cropBitmap)
+        cropBitmap = Utils.BITMAP_RESIZER(
+            sourceBitmap,
+            InventoryModel.TF_OD_API_INPUT_SIZE,
+            InventoryModel.TF_OD_API_INPUT_SIZE
+        )
+        sourceBitmap = cropBitmap
+        binding.imageView.setImageBitmap(sourceBitmap)
 
         initBox()
+    }
+
+    private fun refresh() {
+        binding.imageView.setImageBitmap(sourceBitmap)
+        binding.labels.text = ""
     }
 
     private fun initListenners() {
         binding.detect.setOnClickListener {
             val handler = Handler()
+            refresh()
             val drawable = binding.imageView.drawable.toBitmap()
             cropBitmap = Utils.BITMAP_RESIZER(
                 drawable,
                 InventoryModel.TF_OD_API_INPUT_SIZE,
                 InventoryModel.TF_OD_API_INPUT_SIZE
             )
-            Timer.startTimer(binding.chronometer)
+            Timer.startTimer(binding.chronometer, binding.progressBar)
             Thread {
                 val results: List<Recognition> =
                     detector!!.recognizeImage(cropBitmap)
                 handler.post {
-                    Timer.endTimer(binding.chronometer)
+                    Timer.endTimer(binding.chronometer, binding.progressBar)
                     handleResult(cropBitmap, results)
                 }
             }.start()
@@ -95,6 +97,7 @@ class PhotoFragment : Fragment() {
             dispatchTakePictureIntent()
         }
     }
+
     private fun openGalleryForImage() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
@@ -127,6 +130,7 @@ class PhotoFragment : Fragment() {
             }
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.GALLERY_REQUEST) {
@@ -135,14 +139,14 @@ class PhotoFragment : Fragment() {
                 .load(photoUri)
                 .fit()
                 .into(binding.imageView)
-        }
-        else if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.CAMERA_REQUEST) {
-            val   file = File(currentPhotoPath)
+            sourceBitmap = binding.imageView.drawable.toBitmap()
+        } else if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.CAMERA_REQUEST) {
+            val file = File(currentPhotoPath)
             Picasso.get()
                 .load(file)
                 .fit()
                 .into(binding.imageView)
-
+            sourceBitmap = binding.imageView.drawable.toBitmap()
         }
     }
 
@@ -162,6 +166,7 @@ class PhotoFragment : Fragment() {
     private lateinit var cropBitmap: Bitmap
 
     private fun initBox() {
+        //TODO убрать?
         previewHeight = InventoryModel.TF_OD_API_INPUT_SIZE
         previewWidth = InventoryModel.TF_OD_API_INPUT_SIZE
         frameToCropTransform = ImageUtils.getTransformationMatrix(
@@ -176,7 +181,7 @@ class PhotoFragment : Fragment() {
                 requireActivity().assets,
                 InventoryModel.TF_OD_API_MODEL_FILE,
                 InventoryModel.TF_OD_API_LABELS_FILE,
-                InventoryModel.TF_OD_API_IS_QUANTIZED
+                InventoryModel.is_quantized
             )
         } catch (e: IOException) {
             e.printStackTrace()
@@ -188,11 +193,11 @@ class PhotoFragment : Fragment() {
     }
 
     private fun handleResult(bitmap: Bitmap, results: List<Recognition>) {
-        binding.labels.text=""
+        binding.labels.text = ""
         val canvas = Canvas(bitmap)
         val paint = Paint()
-        val colors:ArrayList<Int> = arrayListOf()
-        while (colors.size!=InventoryModel.classes){
+        val colors: ArrayList<Int> = arrayListOf()
+        while (colors.size != InventoryModel.classes) {
             colors.add(UtilsObject.getRandomColor())
         }
         paint.style = Paint.Style.STROKE
@@ -202,9 +207,9 @@ class PhotoFragment : Fragment() {
         var goods = ArrayList<Goods>()
         results.forEach { result ->
             val location = result.location
-            if (location != null && result.confidence >= InventoryModel.MINIMUM_CONFIDENCE_TF_OD_API) {
+            if (location != null && result.confidence >= InventoryModel.accuracy) {
                 paint.color = colors[result.detectedClass]
-               goods = viewModel.prepareGoods(colors, result, goods)
+                goods = viewModel.prepareGoods(colors, result, goods)
 
                 val b = BorderedText(
                     interiorColor = paint.color,
@@ -217,11 +222,11 @@ class PhotoFragment : Fragment() {
                     location.top - 5, DecimalFormat("##.##").format(result.confidence)
                 )
 
-                    canvas.drawRect(location, paint)
-                }
+                canvas.drawRect(location, paint)
+            }
         }
         goods.forEach {
-            binding.labels.text =  "${binding.labels.text}\n${it.name} - ${it.count}"
+            binding.labels.text = "${binding.labels.text}\n${it.name} - ${it.count}"
         }
         binding.imageView.setImageBitmap(bitmap)
     }

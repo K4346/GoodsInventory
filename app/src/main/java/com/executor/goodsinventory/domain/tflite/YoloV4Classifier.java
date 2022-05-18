@@ -116,21 +116,14 @@ public class YoloV4Classifier implements Classifier {
         return d;
     }
 
-    @Override
-    public float getObjThresh() {
-        return InventoryModel.MINIMUM_CONFIDENCE_TF_OD_API;
-    }
-
     //config yolov4
-    private static final int INPUT_SIZE = 416;
+    private static final int INPUT_SIZE = InventoryModel.TF_OD_API_INPUT_SIZE;
 
     // Number of threads in the java app
     private static final int NUM_THREADS = 4;
     private static boolean isNNAPI = false;
     private static boolean isGPU = true;
 
-    // tiny or not
-    private static boolean isTiny = true;
 
     // config yolov4 tiny
     private static final int[] OUTPUT_WIDTH_TINY = new int[]{2535, 2535};
@@ -283,7 +276,7 @@ public class YoloV4Classifier implements Classifier {
                 }
             }
             final float score = maxClass;
-            if (score > getObjThresh()){
+            if (score > InventoryModel.accuracy){
                 final float xPos = bboxes[0][i][0];
                 final float yPos = bboxes[0][i][1];
                 final float w = bboxes[0][i][2];
@@ -325,7 +318,7 @@ public class YoloV4Classifier implements Classifier {
                 }
             }
             final float score = maxClass;
-            if (score > getObjThresh()){
+            if (score > InventoryModel.accuracy){
                 final float xPos = bboxes[0][i][0];
                 final float yPos = bboxes[0][i][1];
                 final float w = bboxes[0][i][2];
@@ -345,7 +338,7 @@ public class YoloV4Classifier implements Classifier {
         ByteBuffer byteBuffer = convertBitmapToByteBuffer(bitmap);
 
         ArrayList<Recognition> detections;
-        if (isTiny) {
+        if (InventoryModel.isTiny) {
             detections = getDetectionsForTiny(byteBuffer, bitmap);
         } else {
             detections = getDetectionsForFull(byteBuffer, bitmap);

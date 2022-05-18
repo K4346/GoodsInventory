@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_model"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:text="Модель: "
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_model"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/tv_model"
+        app:layout_constraintStart_toEndOf="@id/tv_model"
+        app:layout_constraintTop_toTopOf="@id/tv_model">
+
+    </androidx.appcompat.widget.AppCompatSpinner>
+
+    <CheckBox
+        android:id="@+id/cb_tiny"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="20dp"
+        android:text="Tiny"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cb_quant"
+        app:layout_constraintTop_toBottomOf="@+id/tv_model" />
+
+    <CheckBox
+        android:id="@+id/cb_quant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="Quantization"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cb_tiny"
+        app:layout_constraintTop_toBottomOf="@id/tv_model" />
+
+    <TextView
+        android:id="@+id/tv_input_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Размер модели: "
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_model"
+        app:layout_constraintTop_toBottomOf="@+id/cb_quant" />
+
+    <EditText
+        android:id="@+id/et_input_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:text="416"
+        android:maxLength="4"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_input_size"
+        app:layout_constraintStart_toEndOf="@+id/tv_input_size"
+        app:layout_constraintTop_toTopOf="@+id/tv_input_size" />
+
+    <TextView
+        android:id="@+id/tv_accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Точность: "
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_model"
+        app:layout_constraintTop_toBottomOf="@+id/tv_input_size" />
+
+    <EditText
+        android:id="@+id/et_accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:text="0.5"
+        android:maxLength="4"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_accuracy"
+        app:layout_constraintStart_toEndOf="@+id/tv_accuracy"
+        app:layout_constraintTop_toTopOf="@+id/tv_accuracy" />
+</androidx.constraintlayout.widget.ConstraintLayout>
