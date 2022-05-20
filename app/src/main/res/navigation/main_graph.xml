@@ -10,8 +10,15 @@
         android:id="@+id/navigation_photo"
         android:name="com.executor.goodsinventory.ui.PhotoFragment"
         android:label="PhotoFragment" />
+
+    <fragment
+        android:id="@+id/navigation_live"
+        android:name="com.executor.goodsinventory.ui.LiveFragment"
+        android:label="LiveFragment" />
+
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.executor.goodsinventory.ui.SettingsFragment"
         android:label="SettingsFragment" />
+
 </navigation>

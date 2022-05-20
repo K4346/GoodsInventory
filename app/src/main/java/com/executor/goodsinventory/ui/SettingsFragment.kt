@@ -17,7 +17,7 @@ import com.executor.goodsinventory.databinding.FragmentSettingsBinding
 
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
-
+    private var firstLoad = true
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,7 +50,10 @@ class SettingsFragment : Fragment() {
         binding.spinnerModel.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    if (!firstLoad){
                     UtilsObject.setCurrentModel(requireContext(), p2)
+                    }
+                    firstLoad = false
                     checkBoxNotify()
                 }
 

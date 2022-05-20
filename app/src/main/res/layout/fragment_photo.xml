@@ -54,34 +54,48 @@
             android:id="@+id/chronometer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textColor="@android:color/black"
             android:text="0:0"
-            app:layout_constraintStart_toEndOf="@+id/detect"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/detect"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/detect"
-            app:layout_constraintBottom_toBottomOf="@+id/detect"/>
+            app:layout_constraintStart_toEndOf="@+id/detect"
+            app:layout_constraintTop_toTopOf="@id/detect" />
 
         <TextView
-            android:id="@+id/labels"
+            android:id="@+id/tv_report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            tools:text="Отчет"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chronometer" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_report"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
-            android:textSize="16sp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chronometer" />
+            app:layout_constraintTop_toBottomOf="@id/tv_report"
+            tools:listitem="@layout/report_item" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminateTintMode="src_in"
             android:indeterminateTint="@color/purple_500"
+            android:indeterminateTintMode="src_in"
             android:visibility="gone"
-            tools:visibility="visible"
-            app:layout_constraintEnd_toEndOf="@+id/chronometer"
-            app:layout_constraintStart_toStartOf="@+id/chronometer"
-            app:layout_constraintTop_toBottomOf="@+id/chronometer" />
+           android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/chronometer"
+            app:layout_constraintTop_toTopOf="@+id/chronometer"
+            app:layout_constraintBottom_toBottomOf="@id/chronometer"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

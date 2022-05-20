@@ -7,9 +7,13 @@
         android:title="Фото" />
 
     <item
+        android:id="@+id/navigation_live"
+        android:icon="@drawable/ic_baseline_linked_camera_24"
+        android:title="Трансляция" />
+
+    <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="Настройки" />
-
 
 </menu>

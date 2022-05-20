@@ -17,11 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.executor.goodsinventory.InventoryModel
 import com.executor.goodsinventory.MainActivity
-import com.executor.goodsinventory.UtilsObject
 import com.executor.goodsinventory.databinding.FragmentPhotoBinding
 import com.executor.goodsinventory.domain.Timer
-import com.executor.goodsinventory.domain.entities.Goods
-import com.executor.goodsinventory.domain.env.BorderedText
 import com.executor.goodsinventory.domain.env.ImageUtils
 import com.executor.goodsinventory.domain.env.Utils
 import com.executor.goodsinventory.domain.tflite.Classifier
@@ -30,13 +27,17 @@ import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
-import java.text.DecimalFormat
 
 
 class PhotoFragment : Fragment() {
-    var currentPhotoPath = ""
+    var currentImageIsAnalysis = false
+    var detectionIsStarted = false
     private lateinit var binding: FragmentPhotoBinding
-    private val viewModel: PhotoViewModel by viewModels()
+    private val viewModel: ViewModel by viewModels()
+
+    lateinit var adapter: ReportAdapter
+
+    var currentPhotoPath = ""
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,7 +50,19 @@ class PhotoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initListenners()
+        initListeners()
+        setAdapter()
+
+        viewModel.goodsSLE.observe(viewLifecycleOwner, { goods ->
+            if (goods.isEmpty()) return@observe
+            binding.tvReport.text = "Отчет"
+            adapter.list = goods
+        })
+        viewModel.analyzedImageSLE.observe(viewLifecycleOwner, { bitmap ->
+            binding.imageView.setImageBitmap(bitmap)
+            currentImageIsAnalysis= true
+            detectionIsStarted = false
+        })
 
         sourceBitmap = Utils.getBitmapFromAsset(requireContext(), "primer.jpg")
 
@@ -64,16 +77,28 @@ class PhotoFragment : Fragment() {
         initBox()
     }
 
-    private fun refresh() {
-        binding.imageView.setImageBitmap(sourceBitmap)
-        binding.labels.text = ""
+    private fun setAdapter() {
+        adapter = ReportAdapter()
+        binding.rvReport.adapter = adapter
     }
 
-    private fun initListenners() {
+    private fun refresh() {
+        binding.tvReport.text = ""
+        binding.imageView.setImageBitmap(sourceBitmap)
+        adapter.list = emptyList()
+    }
+
+    private fun initListeners() {
         binding.detect.setOnClickListener {
+            if (detectionIsStarted) return@setOnClickListener
+            detectionIsStarted = true
             val handler = Handler()
-            refresh()
-            val drawable = binding.imageView.drawable.toBitmap()
+            if (currentImageIsAnalysis) {
+                refresh()
+            } else {
+                sourceBitmap = binding.imageView.drawable.toBitmap()
+            }
+            val drawable = sourceBitmap
             cropBitmap = Utils.BITMAP_RESIZER(
                 drawable,
                 InventoryModel.TF_OD_API_INPUT_SIZE,
@@ -85,7 +110,7 @@ class PhotoFragment : Fragment() {
                     detector!!.recognizeImage(cropBitmap)
                 handler.post {
                     Timer.endTimer(binding.chronometer, binding.progressBar)
-                    handleResult(cropBitmap, results)
+                    viewModel.handleResult(cropBitmap, results)
                 }
             }.start()
 
@@ -139,14 +164,15 @@ class PhotoFragment : Fragment() {
                 .load(photoUri)
                 .fit()
                 .into(binding.imageView)
-            sourceBitmap = binding.imageView.drawable.toBitmap()
+            currentImageIsAnalysis=false
         } else if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.CAMERA_REQUEST) {
             val file = File(currentPhotoPath)
             Picasso.get()
                 .load(file)
                 .fit()
                 .into(binding.imageView)
-            sourceBitmap = binding.imageView.drawable.toBitmap()
+            binding.imageView.drawable
+            currentImageIsAnalysis=false
         }
     }
 
@@ -192,42 +218,4 @@ class PhotoFragment : Fragment() {
         }
     }
 
-    private fun handleResult(bitmap: Bitmap, results: List<Recognition>) {
-        binding.labels.text = ""
-        val canvas = Canvas(bitmap)
-        val paint = Paint()
-        val colors: ArrayList<Int> = arrayListOf()
-        while (colors.size != InventoryModel.classes) {
-            colors.add(UtilsObject.getRandomColor())
-        }
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2.0f
-        paint.isAntiAlias = true
-
-        var goods = ArrayList<Goods>()
-        results.forEach { result ->
-            val location = result.location
-            if (location != null && result.confidence >= InventoryModel.accuracy) {
-                paint.color = colors[result.detectedClass]
-                goods = viewModel.prepareGoods(colors, result, goods)
-
-                val b = BorderedText(
-                    interiorColor = paint.color,
-                    exteriorColor = Color.BLACK,
-                    textSize = 14f
-                )
-                b.drawText(
-                    canvas,
-                    location.left,
-                    location.top - 5, DecimalFormat("##.##").format(result.confidence)
-                )
-
-                canvas.drawRect(location, paint)
-            }
-        }
-        goods.forEach {
-            binding.labels.text = "${binding.labels.text}\n${it.name} - ${it.count}"
-        }
-        binding.imageView.setImageBitmap(bitmap)
-    }
 }

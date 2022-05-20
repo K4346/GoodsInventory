@@ -38,19 +38,30 @@ object UtilsObject {
     fun initModels(context: Context) {
         var list = context.assets.list("")?.toList() as List<String>
         list = list.filter { isFolder(context, it) } as ArrayList<String>
+        var i = 0
+        list.forEachIndexed { index, s ->
+            if (s.contains("tiny")) {
+                i = index
+                return@forEachIndexed
+            }
+        }
+        if (i!=0) {
+            Collections.swap(list, 0, i)
+        }
         InventoryModel.models = list
+
         setCurrentModel(context, 0)
     }
 
     fun setCurrentModel(context: Context, i: Int) {
-        val defaultModel = InventoryModel.models[i]
-        val folder = (context.assets.list(defaultModel)?.toList() as ArrayList<String>)
+        val model = InventoryModel.models[i]
+        val folder = (context.assets.list(model)?.toList() as ArrayList<String>)
         val txt = folder.filter { it.endsWith(".txt") }
         val tflite = folder.filter { it.endsWith(".tflite") }
 
-        InventoryModel.TF_OD_API_MODEL_FILE = "$defaultModel/${tflite[0]}"
+        InventoryModel.TF_OD_API_MODEL_FILE = "$model/${tflite[0]}"
         InventoryModel.TF_OD_API_LABELS_FILE =
-            "file:///android_asset/${defaultModel}/${txt[0]}"
+            "file:///android_asset/${model}/${txt[0]}"
 
         InventoryModel.isTiny = tflite[0].contains("tiny")
         InventoryModel.is_quantized = tflite[0].contains("quantize")
