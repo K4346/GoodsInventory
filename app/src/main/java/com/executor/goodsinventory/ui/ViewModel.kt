@@ -1,10 +1,7 @@
 package com.executor.goodsinventory.ui
 
 import android.app.Application
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.os.Environment
 import androidx.lifecycle.AndroidViewModel
 import com.executor.goodsinventory.InventoryModel
@@ -69,7 +66,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         paint.strokeWidth = 2.0f
         paint.isAntiAlias = true
 
-        var goods = java.util.ArrayList<Goods>()
+        var goods = ArrayList<Goods>()
 
         results.forEach { result ->
             val location = result.location
@@ -87,14 +84,27 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     location.left,
                     location.top - 5, DecimalFormat("##.##").format(result.confidence)
                 )
-
+                if (InventoryModel.isTiny){
+                    location.scale(0.5f,0.75f)
+                }
                 canvas.drawRect(location, paint)
             }
         }
         goodsSLE.value = goods
         analyzedImageSLE.value = (bitmap)
     }
-
+    private fun RectF.scale(factorH: Float,factorV: Float) {
+        val oldWidth = width()
+        val oldHeight = height()
+        val rectCenterX = left + oldWidth / 2F
+        val rectCenterY = top + oldHeight / 2F
+        val newWidth = oldWidth * factorH
+        val newHeight = oldHeight * factorV
+        left = rectCenterX - newWidth / 2F
+        right = rectCenterX + newWidth / 2F
+        top = rectCenterY - newHeight / 2F
+        bottom = rectCenterY + newHeight / 2F
+    }
 
     override fun onCleared() {
         super.onCleared()
