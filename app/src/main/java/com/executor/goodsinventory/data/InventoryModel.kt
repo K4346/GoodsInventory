@@ -1,4 +1,4 @@
-package com.executor.goodsinventory
+package com.executor.goodsinventory.data
 
 object InventoryModel {
     var classes: Int = 0

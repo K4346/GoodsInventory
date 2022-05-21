@@ -17,8 +17,8 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Build;
 
-import com.executor.goodsinventory.InventoryModel;
-import com.executor.goodsinventory.UtilsObject;
+import com.executor.goodsinventory.data.InventoryModel;
+import com.executor.goodsinventory.domain.utils.UtilsObject;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;

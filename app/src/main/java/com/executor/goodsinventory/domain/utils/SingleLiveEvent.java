@@ -1,4 +1,4 @@
-package com.executor.goodsinventory;
+package com.executor.goodsinventory.domain.utils;
 
 
 import android.util.Log;

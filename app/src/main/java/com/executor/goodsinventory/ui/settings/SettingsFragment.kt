@@ -1,4 +1,4 @@
-package com.executor.goodsinventory.ui
+package com.executor.goodsinventory.ui.settings
 
 import android.R
 import android.os.Bundle
@@ -11,8 +11,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
-import com.executor.goodsinventory.InventoryModel
-import com.executor.goodsinventory.UtilsObject
+import com.executor.goodsinventory.data.InventoryModel
+import com.executor.goodsinventory.domain.utils.UtilsObject
 import com.executor.goodsinventory.databinding.FragmentSettingsBinding
 
 class SettingsFragment : Fragment() {

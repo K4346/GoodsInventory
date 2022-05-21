@@ -1,4 +1,4 @@
-package com.executor.goodsinventory.domain.env
+package com.executor.goodsinventory.domain.utils
 
 import android.graphics.Canvas
 import android.graphics.Color

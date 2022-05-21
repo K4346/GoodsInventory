@@ -1,8 +1,10 @@
-package com.executor.goodsinventory
+package com.executor.goodsinventory.domain.utils
 
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Color
+import android.graphics.RectF
+import com.executor.goodsinventory.data.InventoryModel
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.MappedByteBuffer
@@ -65,7 +67,19 @@ object UtilsObject {
 
         InventoryModel.isTiny = tflite[0].contains("tiny")
         InventoryModel.is_quantized = tflite[0].contains("quantize")
+    }
 
+    fun RectF.scale(factorH: Float, factorV: Float) {
+        val oldWidth = width()
+        val oldHeight = height()
+        val rectCenterX = left + oldWidth / 2F
+        val rectCenterY = top + oldHeight / 2F
+        val newWidth = oldWidth * factorH
+        val newHeight = oldHeight * factorV
+        left = rectCenterX - newWidth / 2F
+        right = rectCenterX + newWidth / 2F
+        top = rectCenterY - newHeight / 2F
+        bottom = rectCenterY + newHeight / 2F
     }
 
 }

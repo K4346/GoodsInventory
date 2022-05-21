@@ -1,4 +1,4 @@
-package com.executor.goodsinventory.ui
+package com.executor.goodsinventory.ui.photo
 
 import android.app.Activity
 import android.content.Intent
@@ -15,29 +15,35 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.executor.goodsinventory.InventoryModel
 import com.executor.goodsinventory.MainActivity
+import com.executor.goodsinventory.data.InventoryModel
 import com.executor.goodsinventory.databinding.FragmentPhotoBinding
-import com.executor.goodsinventory.domain.Timer
-import com.executor.goodsinventory.domain.env.ImageUtils
-import com.executor.goodsinventory.domain.env.Utils
 import com.executor.goodsinventory.domain.tflite.Classifier
 import com.executor.goodsinventory.domain.tflite.Classifier.Recognition
 import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
+import com.executor.goodsinventory.domain.utils.ImageUtils
+import com.executor.goodsinventory.domain.utils.Timer
+import com.executor.goodsinventory.domain.utils.Utils
+import com.executor.goodsinventory.ui.ReportAdapter
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
 
 
 class PhotoFragment : Fragment() {
-    var currentImageIsAnalysis = false
-    var detectionIsStarted = false
-    private lateinit var binding: FragmentPhotoBinding
-    private val viewModel: ViewModel by viewModels()
 
+    private lateinit var binding: FragmentPhotoBinding
+    private val viewModel: PhotoViewModel by viewModels()
     lateinit var adapter: ReportAdapter
 
+    var currentImageIsAnalysis = false
+    var detectionIsStarted = false
+    private var detector: Classifier? = null
+    private var sourceBitmap: Bitmap? = null
+    private lateinit var cropBitmap: Bitmap
+
     var currentPhotoPath = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,21 +58,10 @@ class PhotoFragment : Fragment() {
 
         initListeners()
         setAdapter()
-
-        viewModel.goodsSLE.observe(viewLifecycleOwner, { goods ->
-            if (goods.isEmpty()) return@observe
-            binding.tvReport.text = "Отчет"
-            adapter.list = goods
-        })
-        viewModel.analyzedImageSLE.observe(viewLifecycleOwner, { bitmap ->
-            binding.imageView.setImageBitmap(bitmap)
-            currentImageIsAnalysis= true
-            detectionIsStarted = false
-        })
+        initObservers()
 
         sourceBitmap = Utils.getBitmapFromAsset(requireContext(), "primer.jpg")
-
-        cropBitmap = Utils.BITMAP_RESIZER(
+        cropBitmap = Utils.bitmapResized(
             sourceBitmap,
             InventoryModel.TF_OD_API_INPUT_SIZE,
             InventoryModel.TF_OD_API_INPUT_SIZE
@@ -74,7 +69,20 @@ class PhotoFragment : Fragment() {
         sourceBitmap = cropBitmap
         binding.imageView.setImageBitmap(sourceBitmap)
 
-        initBox()
+        initDetector()
+    }
+
+    private fun initObservers() {
+        viewModel.goodsSLE.observe(viewLifecycleOwner, { goods ->
+            if (goods.isEmpty()) return@observe
+            binding.tvReport.text = "Отчет"
+            adapter.list = goods
+        })
+        viewModel.analyzedImageSLE.observe(viewLifecycleOwner, { bitmap ->
+            binding.imageView.setImageBitmap(bitmap)
+            currentImageIsAnalysis = true
+            detectionIsStarted = false
+        })
     }
 
     private fun setAdapter() {
@@ -99,7 +107,7 @@ class PhotoFragment : Fragment() {
                 sourceBitmap = binding.imageView.drawable.toBitmap()
             }
             val drawable = sourceBitmap
-            cropBitmap = Utils.BITMAP_RESIZER(
+            cropBitmap = Utils.bitmapResized(
                 drawable,
                 InventoryModel.TF_OD_API_INPUT_SIZE,
                 InventoryModel.TF_OD_API_INPUT_SIZE
@@ -164,7 +172,7 @@ class PhotoFragment : Fragment() {
                 .load(photoUri)
                 .fit()
                 .into(binding.imageView)
-            currentImageIsAnalysis=false
+            currentImageIsAnalysis = false
         } else if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.CAMERA_REQUEST) {
             val file = File(currentPhotoPath)
             Picasso.get()
@@ -172,36 +180,11 @@ class PhotoFragment : Fragment() {
                 .fit()
                 .into(binding.imageView)
             binding.imageView.drawable
-            currentImageIsAnalysis=false
+            currentImageIsAnalysis = false
         }
     }
 
-    private val MAINTAIN_ASPECT = false
-    private val sensorOrientation = 90
-
-    private var detector: Classifier? = null
-
-    private var frameToCropTransform: Matrix? = null
-    private var cropToFrameTransform: Matrix? = null
-//    private lateinit var tracker: MultiBoxTracker
-
-    protected var previewWidth = 0
-    protected var previewHeight = 0
-
-    private var sourceBitmap: Bitmap? = null
-    private lateinit var cropBitmap: Bitmap
-
-    private fun initBox() {
-        //TODO убрать?
-        previewHeight = InventoryModel.TF_OD_API_INPUT_SIZE
-        previewWidth = InventoryModel.TF_OD_API_INPUT_SIZE
-        frameToCropTransform = ImageUtils.getTransformationMatrix(
-            previewWidth, previewHeight,
-            InventoryModel.TF_OD_API_INPUT_SIZE, InventoryModel.TF_OD_API_INPUT_SIZE,
-            sensorOrientation, MAINTAIN_ASPECT
-        )
-        cropToFrameTransform = Matrix()
-        frameToCropTransform!!.invert(cropToFrameTransform)
+    private fun initDetector() {
         try {
             detector = YoloV4Classifier.create(
                 requireActivity().assets,

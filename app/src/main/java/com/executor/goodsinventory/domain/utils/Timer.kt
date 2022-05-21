@@ -1,4 +1,4 @@
-package com.executor.goodsinventory.domain
+package com.executor.goodsinventory.domain.utils
 
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -11,7 +11,7 @@ object Timer {
         progressBar.isVisible=true
         val date= Date()
         textView.text="0:0"
-        start= date.time
+        start = date.time
     }
     fun endTimer(textView: TextView, progressBar: ProgressBar){
         progressBar.isVisible=false

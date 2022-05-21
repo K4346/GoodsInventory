@@ -1,4 +1,4 @@
-package com.executor.goodsinventory.ui
+package com.executor.goodsinventory.ui.live
 
 import android.Manifest
 import android.content.ContentValues
@@ -12,7 +12,6 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -22,11 +21,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.executor.goodsinventory.InventoryModel
+import com.executor.goodsinventory.data.InventoryModel
 import com.executor.goodsinventory.databinding.FragmentLiveBinding
-import com.executor.goodsinventory.domain.env.Utils
+import com.executor.goodsinventory.domain.utils.Utils
 import com.executor.goodsinventory.domain.tflite.Classifier
 import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
+import com.executor.goodsinventory.ui.ReportAdapter
+import com.executor.goodsinventory.ui.BaseViewModel
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
 import com.squareup.picasso.Target
@@ -36,14 +37,13 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-
 class LiveFragment : Fragment() {
     private lateinit var binding: FragmentLiveBinding
     private var imageCapture: ImageCapture? = null
     private lateinit var adapter: ReportAdapter
     private lateinit var target: Target
     private lateinit var detector:Classifier
-    private val viewModel: ViewModel by viewModels()
+    private val viewModel: BaseViewModel by viewModels()
     private lateinit var cameraExecutor: ExecutorService
     private var imageRotation = 0F
     val handler = Handler()
@@ -68,7 +68,8 @@ class LiveFragment : Fragment() {
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
-                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
         }
         adapter = ReportAdapter()
         binding.rvReport.adapter = adapter
@@ -85,8 +86,6 @@ class LiveFragment : Fragment() {
         })
 
         initDetector()
-
-
 
         handler.postDelayed(runnable,1000)
     }
@@ -160,16 +159,15 @@ class LiveFragment : Fragment() {
                 override fun
                         onImageSaved(output: ImageCapture.OutputFileResults){
                     val msg = "Photo capture succeeded: ${output.savedUri}"
-                    detect(output.savedUri)
+                    prepareBitmapAndDetect(output.savedUri)
                     Log.d(TAG, msg)
                 }
             }
         )
     }
 
-    private fun detect(savedUri: Uri?) {
-
-        target = getTarget(savedUri)
+    private fun prepareBitmapAndDetect(savedUri: Uri?) {
+        target = getTarget()
         Picasso.get()
             .load(savedUri)
             .rotate(imageRotation)
@@ -217,9 +215,9 @@ class LiveFragment : Fragment() {
         setOrientationListener()
         }
 
-private fun getTarget(savedUri: Uri?) = object : Target {
+private fun getTarget() = object : Target {
     override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom?) {
-        val cropBitmap = Utils.BITMAP_RESIZER(
+        val cropBitmap = Utils.bitmapResized(
             bitmap,
             InventoryModel.TF_OD_API_INPUT_SIZE,
             InventoryModel.TF_OD_API_INPUT_SIZE
@@ -227,7 +225,7 @@ private fun getTarget(savedUri: Uri?) = object : Target {
         val handler = Handler()
         Thread {
             val results: List<Classifier.Recognition> =
-                detector!!.recognizeImage(cropBitmap)
+                detector.recognizeImage(cropBitmap)
             handler.post {
                 viewModel.handleResult(cropBitmap, results)
             }

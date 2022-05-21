@@ -35,7 +35,7 @@
             android:id="@+id/cameraButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Фото"
+            android:text="Камера"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/galleryButton"
             app:layout_constraintTop_toTopOf="@+id/galleryButton" />
@@ -46,8 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Анализ"
-            app:layout_constraintEnd_toStartOf="@id/chronometer"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/galleryButton"
+            app:layout_constraintStart_toStartOf="@id/galleryButton"
             app:layout_constraintTop_toBottomOf="@+id/galleryButton" />
 
         <TextView
@@ -58,8 +58,8 @@
             android:textColor="@android:color/black"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/detect"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/detect"
+            app:layout_constraintEnd_toEndOf="@id/cameraButton"
+            app:layout_constraintStart_toStartOf="@id/cameraButton"
             app:layout_constraintTop_toTopOf="@id/detect" />
 
         <TextView
