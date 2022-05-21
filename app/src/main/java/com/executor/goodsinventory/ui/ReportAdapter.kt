@@ -1,8 +1,5 @@
 package com.executor.goodsinventory.ui
 
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +7,8 @@ import com.executor.goodsinventory.databinding.ReportItemBinding
 import com.executor.goodsinventory.domain.entities.Goods
 
 
-class ReportAdapter : RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
+class ReportAdapter(private val withColor: Boolean) :
+    RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
     var list: List<Goods> = arrayListOf()
         set(value) {
             field = value
@@ -27,7 +25,9 @@ class ReportAdapter : RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
     override fun onBindViewHolder(holder: ReportViewHolder, position: Int) {
         val item = list[position]
         holder.label.text = item.name
-        holder.label.setTextColor(item.color)
+        if (withColor) {
+            holder.label.setTextColor(item.color)
+        }
         holder.count.text = item.count.toString()
     }
 

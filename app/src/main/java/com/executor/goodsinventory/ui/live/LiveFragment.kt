@@ -75,7 +75,7 @@ class LiveFragment : Fragment() {
                 requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
-        adapter = ReportAdapter()
+        adapter = ReportAdapter(false)
         binding.rvReport.adapter = adapter
         // Set up the listeners for take photo and video capture buttons
 
@@ -86,7 +86,7 @@ class LiveFragment : Fragment() {
                 binding.tvReport.text = "Отчет"
                 adapter.list = goods
             }
-            handler.postDelayed(runnable, 1000)
+            handler.postDelayed(runnable, 1000 * InventoryModel.timeDelay)
         })
 
         initDetector()

@@ -81,6 +81,13 @@ class SettingsFragment : Fragment() {
 
             override fun afterTextChanged(p0: Editable?) {}
         })
+        binding.etDelay.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                InventoryModel.timeDelay = p0.toString().toLong()
+            }
+        })
     }
 
     private fun setModelsSpinner() {

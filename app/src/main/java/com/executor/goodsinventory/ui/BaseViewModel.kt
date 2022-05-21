@@ -49,14 +49,16 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
                     exteriorColor = Color.BLACK,
                     textSize = 14f
                 )
+
+                if (InventoryModel.isTiny) {
+                    location.scale(0.5f, 0.75f)
+                }
+
                 b.drawText(
                     canvas,
                     location.left,
                     location.top - 5, DecimalFormat("##.##").format(result.confidence)
                 )
-                if (InventoryModel.isTiny) {
-                    location.scale(0.5f, 0.75f)
-                }
                 canvas.drawRect(location, paint)
             }
         }

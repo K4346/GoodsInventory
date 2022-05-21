@@ -80,7 +80,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Точность: "
+        android:text="Порог: "
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/tv_model"
@@ -96,4 +96,38 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_accuracy"
         app:layout_constraintStart_toEndOf="@+id/tv_accuracy"
         app:layout_constraintTop_toTopOf="@+id/tv_accuracy" />
+
+    <TextView
+        android:id="@+id/tv_delay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Задержка обнаружения: "
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_accuracy"
+        app:layout_constraintTop_toBottomOf="@+id/tv_accuracy" />
+
+    <EditText
+        android:id="@+id/et_delay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:text="5"
+        android:maxLength="4"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_delay"
+        app:layout_constraintStart_toEndOf="@+id/tv_delay"
+        app:layout_constraintTop_toTopOf="@+id/tv_delay" />
+
+    <TextView
+        android:id="@+id/tv_sec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="секунд"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/et_delay"
+        app:layout_constraintStart_toEndOf="@+id/et_delay"
+        app:layout_constraintTop_toTopOf="@+id/et_delay"  />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

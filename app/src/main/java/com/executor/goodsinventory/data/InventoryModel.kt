@@ -20,6 +20,8 @@ object InventoryModel {
 
     var is_quantized = false
 
+    var timeDelay = 1L
+
     var TF_OD_API_MODEL_FILE = "custom_yolov4.tflite"
 
     var TF_OD_API_LABELS_FILE = "file:///android_asset/predefined_classes.txt"

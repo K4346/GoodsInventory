@@ -85,7 +85,7 @@ class PhotoFragment : Fragment() {
     }
 
     private fun setAdapter() {
-        adapter = ReportAdapter()
+        adapter = ReportAdapter(true)
         binding.rvReport.adapter = adapter
     }
 
