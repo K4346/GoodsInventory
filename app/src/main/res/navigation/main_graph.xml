@@ -9,16 +9,19 @@
     <fragment
         android:id="@+id/navigation_photo"
         android:name="com.executor.goodsinventory.ui.photo.PhotoFragment"
-        android:label="PhotoFragment" />
+        android:label="Обнаружение товаров"
+        tools:layout="@layout/fragment_photo"/>
 
     <fragment
         android:id="@+id/navigation_live"
         android:name="com.executor.goodsinventory.ui.live.LiveFragment"
-        android:label="LiveFragment" />
+        android:label="Обнаружение в реальном времени"
+        tools:layout="@layout/fragment_live"/>
 
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.executor.goodsinventory.ui.settings.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="Настройки"
+        tools:layout="@layout/fragment_settings"/>
 
 </navigation>

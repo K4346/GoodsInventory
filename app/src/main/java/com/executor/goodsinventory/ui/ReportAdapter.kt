@@ -26,15 +26,8 @@ class ReportAdapter : RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
 
     override fun onBindViewHolder(holder: ReportViewHolder, position: Int) {
         val item = list[position]
-        val title: Spannable = SpannableString(item.name)
-        title.setSpan(
-            ForegroundColorSpan(item.color),
-            0,
-            title.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        holder.label.text = title
+        holder.label.text = item.name
+        holder.label.setTextColor(item.color)
         holder.count.text = item.count.toString()
     }
 

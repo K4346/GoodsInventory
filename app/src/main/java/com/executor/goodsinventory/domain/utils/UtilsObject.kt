@@ -66,7 +66,7 @@ object UtilsObject {
             "file:///android_asset/${model}/${txt[0]}"
 
         InventoryModel.isTiny = tflite[0].contains("tiny")
-        InventoryModel.is_quantized = tflite[0].contains("quantize")
+        InventoryModel.is_quantized = tflite[0].contains("fp16") || tflite[0].contains("ip8")
     }
 
     fun RectF.scale(factorH: Float, factorV: Float) {
