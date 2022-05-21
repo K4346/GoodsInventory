@@ -12,8 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
 import com.executor.goodsinventory.data.InventoryModel
-import com.executor.goodsinventory.domain.utils.UtilsObject
 import com.executor.goodsinventory.databinding.FragmentSettingsBinding
+import com.executor.goodsinventory.domain.utils.UtilsObject
 
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
@@ -50,8 +50,8 @@ class SettingsFragment : Fragment() {
         binding.spinnerModel.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                    if (!firstLoad){
-                    UtilsObject.setCurrentModel(requireContext(), p2)
+                    if (!firstLoad) {
+                        UtilsObject.setCurrentModel(requireContext(), p2)
                     }
                     firstLoad = false
                     checkBoxNotify()

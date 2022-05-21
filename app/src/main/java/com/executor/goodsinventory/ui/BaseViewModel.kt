@@ -69,7 +69,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         result: Classifier.Recognition,
         goods: ArrayList<Goods>
     ): ArrayList<Goods> {
-        if (goods.filter { result.detectedClass == it.code }.isEmpty()) {
+        if (goods.none { result.detectedClass == it.code }) {
             goods.add(Goods(result.title, result.detectedClass, colors[result.detectedClass], 0))
         }
         goods.map {

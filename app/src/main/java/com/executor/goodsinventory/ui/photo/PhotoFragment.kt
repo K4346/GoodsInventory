@@ -21,7 +21,6 @@ import com.executor.goodsinventory.databinding.FragmentPhotoBinding
 import com.executor.goodsinventory.domain.tflite.Classifier
 import com.executor.goodsinventory.domain.tflite.Classifier.Recognition
 import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
-import com.executor.goodsinventory.domain.utils.ImageUtils
 import com.executor.goodsinventory.domain.utils.Timer
 import com.executor.goodsinventory.domain.utils.Utils
 import com.executor.goodsinventory.ui.ReportAdapter

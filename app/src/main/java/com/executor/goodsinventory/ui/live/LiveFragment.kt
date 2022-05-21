@@ -11,7 +11,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.OrientationEventListener
+import android.view.View
+import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -23,11 +26,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.executor.goodsinventory.data.InventoryModel
 import com.executor.goodsinventory.databinding.FragmentLiveBinding
-import com.executor.goodsinventory.domain.utils.Utils
 import com.executor.goodsinventory.domain.tflite.Classifier
 import com.executor.goodsinventory.domain.tflite.YoloV4Classifier
-import com.executor.goodsinventory.ui.ReportAdapter
+import com.executor.goodsinventory.domain.utils.Utils
 import com.executor.goodsinventory.ui.BaseViewModel
+import com.executor.goodsinventory.ui.ReportAdapter
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
 import com.squareup.picasso.Target
@@ -42,7 +45,7 @@ class LiveFragment : Fragment() {
     private var imageCapture: ImageCapture? = null
     private lateinit var adapter: ReportAdapter
     private lateinit var target: Target
-    private lateinit var detector:Classifier
+    private lateinit var detector: Classifier
     private val viewModel: BaseViewModel by viewModels()
     private lateinit var cameraExecutor: ExecutorService
     private var imageRotation = 0F
@@ -52,6 +55,7 @@ class LiveFragment : Fragment() {
             takePhoto()
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -82,12 +86,12 @@ class LiveFragment : Fragment() {
                 binding.tvReport.text = "Отчет"
                 adapter.list = goods
             }
-            handler.postDelayed(runnable,1000)
+            handler.postDelayed(runnable, 1000)
         })
 
         initDetector()
 
-        handler.postDelayed(runnable,1000)
+        handler.postDelayed(runnable, 1000)
     }
 
     private fun initDetector() {
@@ -117,9 +121,9 @@ class LiveFragment : Fragment() {
         try {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview)
-        }
-        catch(exc: Exception) {
+                this, cameraSelector, preview
+            )
+        } catch (exc: Exception) {
             Log.e(TAG, "Use case binding failed", exc)
         }
     }
@@ -134,16 +138,18 @@ class LiveFragment : Fragment() {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
             }
         }
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(requireActivity().contentResolver,
+            .Builder(
+                requireActivity().contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
+                contentValues
+            )
             .build()
 
         // Set up image capture listener, which is triggered after photo has
@@ -157,7 +163,7 @@ class LiveFragment : Fragment() {
                 }
 
                 override fun
-                        onImageSaved(output: ImageCapture.OutputFileResults){
+                        onImageSaved(output: ImageCapture.OutputFileResults) {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     prepareBitmapAndDetect(output.savedUri)
                     Log.d(TAG, msg)
@@ -176,68 +182,72 @@ class LiveFragment : Fragment() {
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
-            requireContext(), it) == PackageManager.PERMISSION_GRANTED
+            requireContext(), it
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun startCamera() {
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
-            cameraProviderFuture.addListener({
-                // Used to bind the lifecycle of cameras to the lifecycle owner
-                val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+        cameraProviderFuture.addListener({
+            // Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
-                // Preview
-                val preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-                    }
-
-                imageCapture = ImageCapture.Builder()
-                    .build()
-
-                // Select back camera as a default
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                try {
-                    // Unbind use cases before rebinding
-                    cameraProvider.unbindAll()
-
-                    // Bind use cases to camera
-                    cameraProvider.bindToLifecycle(
-                        this, cameraSelector, preview, imageCapture)
-
-                } catch(exc: Exception) {
-                    Log.e(TAG, "Use case binding failed", exc)
+            // Preview
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
-            }, ContextCompat.getMainExecutor(requireContext()))
-        setOrientationListener()
-        }
+            imageCapture = ImageCapture.Builder()
+                .build()
 
-private fun getTarget() = object : Target {
-    override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom?) {
-        val cropBitmap = Utils.bitmapResized(
-            bitmap,
-            InventoryModel.TF_OD_API_INPUT_SIZE,
-            InventoryModel.TF_OD_API_INPUT_SIZE
-        )
-        val handler = Handler()
-        Thread {
-            val results: List<Classifier.Recognition> =
-                detector.recognizeImage(cropBitmap)
-            handler.post {
-                viewModel.handleResult(cropBitmap, results)
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+
+                // Bind use cases to camera
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture
+                )
+
+            } catch (exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
             }
-        }.start()
+
+        }, ContextCompat.getMainExecutor(requireContext()))
+        setOrientationListener()
     }
 
-    override fun onBitmapFailed(e: java.lang.Exception, errorDrawable: Drawable?) {}
-    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-}
+    private fun getTarget() = object : Target {
+        override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom?) {
+            val cropBitmap = Utils.bitmapResized(
+                bitmap,
+                InventoryModel.TF_OD_API_INPUT_SIZE,
+                InventoryModel.TF_OD_API_INPUT_SIZE
+            )
+            val handler = Handler()
+            Thread {
+                val results: List<Classifier.Recognition> =
+                    detector.recognizeImage(cropBitmap)
+                handler.post {
+                    viewModel.handleResult(cropBitmap, results)
+                }
+            }.start()
+        }
+
+        override fun onBitmapFailed(e: java.lang.Exception, errorDrawable: Drawable?) {}
+        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults:
-        IntArray) {
+        IntArray
+    ) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startCamera()
@@ -245,7 +255,7 @@ private fun getTarget() = object : Target {
         }
     }
 
-    private fun setOrientationListener(){
+    private fun setOrientationListener() {
         val orientationEventListener = object : OrientationEventListener(context) {
             override fun onOrientationChanged(orientation: Int) {
                 // Monitors orientation values to determine the target rotation value
@@ -275,7 +285,7 @@ private fun getTarget() = object : Target {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS =
-            mutableListOf (
+            mutableListOf(
                 Manifest.permission.CAMERA,
             ).apply {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
