@@ -2,6 +2,7 @@ package com.executor.goodsinventory.ui.photo
 
 import android.app.Activity
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
@@ -133,8 +134,7 @@ class PhotoFragment : Fragment() {
     private fun openGalleryForImage() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        val requestCode = 100
-        startActivityForResult(intent, requestCode)
+        startActivityForResult(intent, InventoryModel.GALLERY_REQUEST)
     }
 
     private fun dispatchTakePictureIntent() {
@@ -165,11 +165,16 @@ class PhotoFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.GALLERY_REQUEST) {
-            val photoUri = data?.data
+        val photoUri = data?.data
+        if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.GALLERY_REQUEST && photoUri != null) {
+            var rotateValue = 0f
+            try {
+                rotateValue = viewModel.setOrientationListener(Utils.getPath(requireContext(),photoUri))
+            }catch (e:Error){}
             Picasso.get()
                 .load(photoUri)
                 .fit()
+                .rotate(rotateValue)
                 .into(binding.imageView)
             currentImageIsAnalysis = false
         } else if (resultCode == Activity.RESULT_OK && requestCode == InventoryModel.CAMERA_REQUEST) {

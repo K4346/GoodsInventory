@@ -2,12 +2,14 @@ package com.executor.goodsinventory.ui.photo
 
 import android.app.Application
 import android.os.Environment
+import androidx.exifinterface.media.ExifInterface
 import com.executor.goodsinventory.MainActivity
 import com.executor.goodsinventory.ui.BaseViewModel
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class PhotoViewModel(application: Application) : BaseViewModel(application) {
 
@@ -27,4 +29,19 @@ class PhotoViewModel(application: Application) : BaseViewModel(application) {
             currentPhotoPath = absolutePath
         }
     }
+
+    fun setOrientationListener(path: String): Float {
+        val ei = ExifInterface(path)
+        val orientation: Int =
+            ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> {
+                0f
+            }
+        }
+    }
+
 }
