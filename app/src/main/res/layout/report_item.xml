@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_recommendation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="Рекомендовано к закупке:"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+
+<androidx.appcompat.widget.LinearLayoutCompat
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
+
+
 
     <TextView
         android:id="@+id/label"
@@ -33,4 +51,7 @@
         android:textColor="@color/black"
         android:textStyle="italic"
         />
+
+</androidx.appcompat.widget.LinearLayoutCompat>
+
 </androidx.appcompat.widget.LinearLayoutCompat>

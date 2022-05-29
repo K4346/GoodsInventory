@@ -5,4 +5,5 @@ data class Goods(
     val code : Int,
     val color: Int,
     var count:Int = 0,
+    var isFew: Boolean = false
 )

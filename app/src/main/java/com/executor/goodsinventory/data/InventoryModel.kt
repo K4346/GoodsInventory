@@ -20,6 +20,8 @@ object InventoryModel {
 
     var is_quantized = false
 
+    var isMin:Int = 10
+
     var timeDelay = 1L
 
     var TF_OD_API_MODEL_FILE = "custom_yolov4.tflite"

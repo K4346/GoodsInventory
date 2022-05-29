@@ -62,7 +62,8 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
                 canvas.drawRect(location, paint)
             }
         }
-        goodsSLE.value = goods
+        val res = goods.sortedByDescending { it.count }
+        goodsSLE.value = isFew(res)
         analyzedImageSLE.value = (bitmap)
     }
 
@@ -77,6 +78,16 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         goods.map {
             if (result.detectedClass == it.code)
                 it.count++
+        }
+        return goods
+    }
+
+    private fun isFew(goods: List<Goods>): List<Goods> {
+        for (it in goods) {
+            if (it.count < InventoryModel.isMin) {
+                it.isFew = true
+                return goods
+            }
         }
         return goods
     }

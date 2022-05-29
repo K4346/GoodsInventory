@@ -130,4 +130,26 @@
         app:layout_constraintStart_toEndOf="@+id/et_delay"
         app:layout_constraintTop_toTopOf="@+id/et_delay"  />
 
+    <TextView
+        android:id="@+id/tv_rec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Порог для рекомендации к закупке: "
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_delay"
+        app:layout_constraintTop_toBottomOf="@+id/tv_delay" />
+
+    <EditText
+        android:id="@+id/et_rec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:text="10"
+        android:maxLength="2"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_rec"
+        app:layout_constraintStart_toEndOf="@+id/tv_rec"
+        app:layout_constraintTop_toTopOf="@+id/tv_rec" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

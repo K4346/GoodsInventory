@@ -90,6 +90,15 @@ class SettingsFragment : Fragment() {
             }
             override fun afterTextChanged(p0: Editable?) {}
         })
+        binding.etRec.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (p0.toString().isNotEmpty()){
+                    InventoryModel.isMin = p0.toString().toInt()
+                }
+            }
+            override fun afterTextChanged(p0: Editable?) {}
+        })
     }
 
     private fun setModelsSpinner() {
